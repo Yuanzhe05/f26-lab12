@@ -1,1 +1,1 @@
-babel==2.9.0
+# No third-party runtime dependencies; the service uses only the standard library.

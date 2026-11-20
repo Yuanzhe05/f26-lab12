@@ -44,6 +44,16 @@ def test_a_partial_statement_records_what_was_withheld(booking):
     assert "withheld $30.00 of $120.00" in statement.adjustments[-1]
 
 
+def test_statements_without_adjustments_do_not_share_notes(booking):
+    first = service.build_statement(booking, 9000, "standard")
+    second = service.build_statement(booking, 12000, "full")
+    assert first.adjustments == (
+        "settled under the standard tier",
+        "withheld $30.00 of $120.00",
+    )
+    assert second.adjustments == ("settled under the full tier",)
+
+
 def test_a_decision_carries_the_room_the_department_and_the_reason(booking, cancellation):
     request = cancellation(utc(2026, 3, 7, 14, 0), reason="room swap")
     statement = service.decide_refund(booking, request)

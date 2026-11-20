@@ -2,6 +2,8 @@
 
 from dataclasses import replace
 
+import pytest
+
 from refunds import policy
 from refunds.models import utc
 
@@ -34,6 +36,11 @@ def test_half_an_hour_ahead_pays_nothing(booking, cancellation):
     request = cancellation(utc(2026, 3, 10, 13, 30))
     assert policy.tier_for(booking, request).name == "none"
     assert policy.refund_cents(booking, request) == 0
+
+
+@pytest.mark.parametrize("when", [utc(2026, 3, 10, 14, 0), utc(2026, 3, 10, 15, 0)])
+def test_a_no_show_pays_zero_cents(booking, cancellation, when):
+    assert policy.refund_cents(booking, cancellation(when)) == 0
 
 
 def test_a_waived_reason_returns_the_whole_price_as_booked(booking, cancellation):
